@@ -16,7 +16,7 @@ const loadLessons = async () => {
   for (let lesson of lessons) {
     const lessonBtn = document.createElement("div");
     lessonBtn.innerHTML = `
-    <button onclick="loadVocabularies(${lesson.level_no})" class="btn btn-outline btn-primary">
+    <button id="lesson-${lesson.level_no}-btn" onclick="loadVocabularies(${lesson.level_no})" class="btn btn-outline btn-primary lesson-btn">
           <i class="fa-solid fa-book-open"></i> Lesson - ${lesson.level_no}
         </button>`;
 
@@ -33,6 +33,8 @@ const loadVocabularies = async (level) => {
   const vocabularies = json.data;
 
   //   console.log(vocabularies);
+
+  highlightBtn(level);
 
   const vocabContainer = document.getElementById("vocabulary-container");
   vocabContainer.innerHTML = "";
@@ -60,7 +62,7 @@ const loadVocabularies = async (level) => {
   }
 
   vocabularies.forEach((vocabulary) => {
-    console.log(vocabulary);
+    // console.log(vocabulary);
     const vocabularyCard = document.createElement("div");
     vocabularyCard.innerHTML = `
     <div id="word-1" class="bg-white space-y-10 h-75 p-8 rounded-lg flex flex-col justify-center">
@@ -73,7 +75,7 @@ const loadVocabularies = async (level) => {
           </div>
 
           <div class="flex justify-between ">
-            <button id="word-1-details-btn" class="square-btn">
+            <button onclick="showVocabularyModal(${vocabulary.id})" id="word-1-details-btn" class="square-btn">
               <i class="fa-solid fa-circle-info"></i>
             </button>
             <button id="word-1-sound-btn" class="square-btn">
@@ -84,6 +86,80 @@ const loadVocabularies = async (level) => {
 
     vocabContainer.appendChild(vocabularyCard);
   });
+};
+
+const highlightBtn = async (id) => {
+  const lessonBtns = document.querySelectorAll(".lesson-btn");
+  const selectedBtn = document.getElementById(`lesson-${id}-btn`);
+
+  //  console.log(selectedBtn);
+  //   console.log(lessonBtns);
+
+  lessonBtns.forEach((lessonBtn) => {
+    lessonBtn.classList.add("btn-outline");
+  });
+
+  selectedBtn.classList.remove("btn-outline");
+};
+
+const showVocabularyModal = async (id) => {
+  const res = await fetch(
+    `https://openapi.programming-hero.com/api/word/${id}`,
+  );
+  const json = await res.json();
+  const vocabDetails = json.data;
+
+  //   console.log(vocabDetails);
+
+  const modal = document.getElementById("vocabulary_modal");
+  const modalContent = document.getElementById("modal-content");
+
+  modalContent.innerHTML = `
+          <div class="space-y-8 p-4 border-3 border-[#EDF7FF] rounded-xl">
+            <div class="space-y-2">
+              <h2 class="text-3xl font-semibold">
+                ${vocabDetails.word ? vocabDetails.word : "শব্দ পাওয়া যায়নি"} (<i class="fa-solid fa-microphone-lines"></i>:
+                <span>${vocabDetails.pronunciation ? vocabDetails.pronunciation : "উচ্চারণ পাওয়া যায়নি"}</span>)
+              </h2>
+            </div>
+
+            <div class="space-y-2">
+              <p class="text-2xl font-semibold">Meaning</p>
+              <p class="font-bangla text-2xl font-medium">${vocabDetails.meaning ? vocabDetails.meaning : "অর্থ পাওয়া যায়নি"}</p>
+            </div>
+
+            <div class="space-y-2">
+              <p class="text-2xl font-semibold">Example</p>
+              <p class="font-bangla text-2xl font-medium">
+                ${vocabDetails.sentence ? vocabDetails.sentence : "উদাহরণ পাওয়া যায়নি"}
+              </p>
+            </div>
+
+            <div class="space-y-2">
+              <p class="font-bangla text-2xl font-medium">সমার্থক শব্দ গুলো</p>
+              <div id="synonyms-container" class="flex gap-2">
+              </div>
+            </div>
+          </div>`;
+
+  const synonymsContainer = document.getElementById("synonyms-container");
+
+  const synonyms = vocabDetails.synonyms;
+
+  if (synonyms.length === 0) {
+    synonymsContainer.innerHTML = `<p class="font-bangla text-2xl font-medium">সমার্থক শব্দ পাওয়া যায়নি</p>`;
+  }
+
+  synonyms.forEach((synonym) => {
+    const synonymBadge = document.createElement("div");
+    synonymBadge.innerHTML = `<div class="badge badge-soft badge-primary py-5 text-black">
+                  ${synonym}
+                </div>`;
+
+    synonymsContainer.appendChild(synonymBadge);
+  });
+
+  modal.showModal();
 };
 
 loadLessons();
