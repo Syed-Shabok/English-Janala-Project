@@ -27,3 +27,25 @@
 .square-btn:active {
   transform: scale(0.95);
 }
+
+.answer {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height 0.35s ease,
+    opacity 0.35s ease;
+}
+
+.answer.show {
+  max-height: 200px;
+  opacity: 1;
+}
+
+.icon {
+  transition: transform 0.25s ease;
+}
+
+.icon.rotate {
+  transform: rotate(180deg);
+}

@@ -1,5 +1,6 @@
 console.log("script.js is working...");
 
+// Fetches Lessons from API and Displays them as Buttons.
 const loadLessons = async () => {
   const response = await fetch(
     "https://openapi.programming-hero.com/api/levels/all",
@@ -24,6 +25,7 @@ const loadLessons = async () => {
   }
 };
 
+// Fetches Vocabularies from API.
 const loadVocabularies = async (level) => {
   showLoadingSpinner(true);
 
@@ -43,20 +45,27 @@ const loadVocabularies = async (level) => {
   showLoadingSpinner(false);
 };
 
+// Adds Highlight to selected Lesson Button.
 const highlightBtn = async (id) => {
-  const lessonBtns = document.querySelectorAll(".lesson-btn");
   const selectedBtn = document.getElementById(`lesson-${id}-btn`);
 
   //  console.log(selectedBtn);
-  //   console.log(lessonBtns);
 
-  lessonBtns.forEach((lessonBtn) => {
-    lessonBtn.classList.add("btn-outline");
-  });
+  removeBtnHighlights();
 
   selectedBtn.classList.remove("btn-outline");
 };
 
+// Removes Highlight from all Lesson Buttons.
+const removeBtnHighlights = () => {
+  const lessonBtns = document.querySelectorAll(".lesson-btn");
+
+  lessonBtns.forEach((lessonBtn) => {
+    lessonBtn.classList.add("btn-outline");
+  });
+};
+
+// Toggles the Modal of a given Vocabulary.
 const showVocabularyModal = async (id) => {
   const res = await fetch(
     `https://openapi.programming-hero.com/api/word/${id}`,
@@ -117,6 +126,7 @@ const showVocabularyModal = async (id) => {
   modal.showModal();
 };
 
+// Displays a Spinner while Content is being loaded.
 const showLoadingSpinner = (isLoading) => {
   const spinner = document.getElementById("spinner");
   const vocabContainer = document.getElementById("vocabulary-container");
@@ -131,11 +141,20 @@ const showLoadingSpinner = (isLoading) => {
   }
 };
 
+// Displays a given list of Vocabularies.
 const displayVocabularies = (vocabularies) => {
   const vocabContainer = document.getElementById("vocabulary-container");
   vocabContainer.innerHTML = "";
-  vocabContainer.classList.add("h-[670px]");
-  vocabContainer.classList.add("overflow-y-scroll");
+
+  if (vocabularies.length < 4) {
+    vocabContainer.classList.remove("h-[670px]");
+    vocabContainer.classList.remove("overflow-y-scroll");
+  }
+
+  if (vocabularies.length >= 4) {
+    vocabContainer.classList.add("h-[670px]");
+    vocabContainer.classList.add("overflow-y-scroll");
+  }
 
   if (vocabularies.length === 0) {
     vocabContainer.classList.remove("h-[670px]");
@@ -183,19 +202,44 @@ const displayVocabularies = (vocabularies) => {
   });
 };
 
+// Displays a Message when Searched Vocabulary is not found.
+const showNotFoundMessage = () => {
+  const vocabContainer = document.getElementById("vocabulary-container");
+  vocabContainer.innerHTML = "";
+
+  vocabContainer.classList.remove("h-[670px]");
+  vocabContainer.classList.remove("overflow-y-scroll");
+  vocabContainer.innerHTML = `<!-- Shows when searched Vocabulary is not found -->
+        <div
+          id="no-option-selected"
+          class="text-center font-bangla space-y-6 col-span-full p-10"
+        >
+          <img
+            src="./assets/alert-error.png"
+            class="mx-auto"
+            alt="Alert Icon"
+          />
+          <p class="text-[#79716B]">
+            Vocabulary খুঁজে পাওয়া যাই নি।  
+          </p>
+          <h3 class="text-2xl md:text-4xl font-medium">আবার চেষ্টা করুন।</h3>
+        </div>`;
+};
+
+// Plays Pronunciation of given word.
 function pronounceWord(word) {
   const utterance = new SpeechSynthesisUtterance(word);
   utterance.lang = "en-EN"; // English
   window.speechSynthesis.speak(utterance);
 }
 
-loadLessons();
-
+// Search Bar Implementation for searching Vocabularies.
 document.getElementById("search-btn").addEventListener("click", async () => {
   const searchBar = document.getElementById("search-bar");
   const userInput = searchBar.value.trim().toLowerCase();
   //   console.log(userInput);
 
+  removeBtnHighlights();
   showLoadingSpinner(true);
 
   const res = await fetch("https://openapi.programming-hero.com/api/words/all");
@@ -208,5 +252,31 @@ document.getElementById("search-btn").addEventListener("click", async () => {
 
   displayVocabularies(filteredVocabularies);
 
+  if (filteredVocabularies.length === 0) {
+    showNotFoundMessage();
+  }
+
   showLoadingSpinner(false);
 });
+
+// Custom made toggle for viewing answers to questions. Uses the Event Delegation Technique.
+document
+  .getElementById("questions-container")
+  .addEventListener("click", (event) => {
+    if (event.target.closest(".expand-btn")) {
+      const question = event.target.closest(".question-bar");
+      const answer = question.querySelector(".answer");
+      const icon = question.querySelector(".icon");
+
+      answer.classList.toggle("show");
+      icon.classList.toggle("rotate");
+
+      if (answer.classList.contains("show")) {
+        icon.classList.replace("fa-plus", "fa-minus");
+      } else {
+        icon.classList.replace("fa-minus", "fa-plus");
+      }
+    }
+  });
+
+loadLessons();
