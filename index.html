@@ -146,7 +146,7 @@
     </section>
 
     <!-- Vocabulary Section -->
-    <section class="w-11/12 mx-auto my-20 space-y-10">
+    <section id="vocabulary-section" class="w-11/12 mx-auto my-20 space-y-10">
       <h2 class="text-4xl font-bold text-center">
         <span class="text-[#00BCFF]">Let's</span> Learn Vocabularies
       </h2>
@@ -156,6 +156,14 @@
         class="flex flex-wrap gap-4 justify-center"
       >
         <!-- Lesson Buttons will be loaded here -->
+      </div>
+
+      <!-- Loading Spinner -->
+      <div
+        id="spinner"
+        class="flex justify-center items-center bg-[#F8F8F8] rounded-xl h-50 hidden"
+      >
+        <span class="loading loading-bars loading-xl"></span>
       </div>
 
       <!-- Vocabulary Cards will be loaded here -->

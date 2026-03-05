@@ -25,6 +25,8 @@ const loadLessons = async () => {
 };
 
 const loadVocabularies = async (level) => {
+  showLoadingSpinner(true);
+
   const res = await fetch(
     `https://openapi.programming-hero.com/api/level/${level}`,
   );
@@ -86,6 +88,7 @@ const loadVocabularies = async (level) => {
 
     vocabContainer.appendChild(vocabularyCard);
   });
+  showLoadingSpinner(false);
 };
 
 const highlightBtn = async (id) => {
@@ -160,6 +163,20 @@ const showVocabularyModal = async (id) => {
   });
 
   modal.showModal();
+};
+
+const showLoadingSpinner = (isLoading) => {
+  const spinner = document.getElementById("spinner");
+  const vocabContainer = document.getElementById("vocabulary-container");
+  ("no-option-selected");
+
+  if (isLoading) {
+    spinner.classList.remove("hidden");
+    vocabContainer.classList.add("hidden");
+  } else {
+    spinner.classList.add("hidden");
+    vocabContainer.classList.remove("hidden");
+  }
 };
 
 loadLessons();
